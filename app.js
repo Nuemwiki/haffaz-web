@@ -2,7 +2,7 @@
 // Günün ayeti: uygulamayla aynı sunucudan (/gunun-ayeti) çekilir; ulaşılamazsa yerel yedek listeden seçilir.
 
 (function () {
-  var API = 'https://hafiz-ai.onrender.com/gunun-ayeti';
+  var API = 'https://api.haffaz.net/gunun-ayeti';
 
   // Sunucu uykudaysa (ilk istek yavaş olabilir) gösterilecek yedek ayetler
   var YEDEK = [
