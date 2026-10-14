@@ -110,3 +110,55 @@
     }
   });
 })();
+
+// Uygulama görsellerini büyütme penceresi
+(function () {
+  var dugmeler = Array.prototype.slice.call(document.querySelectorAll('#vitrin .buyut'));
+  var kutu = document.getElementById('buyuk');
+  if (!kutu || !dugmeler.length) return;
+  var img = document.getElementById('buyuk-img');
+  var ad = document.getElementById('buyuk-ad');
+  var sira = 0, sonOdak = null;
+
+  function goster(i) {
+    sira = (i + dugmeler.length) % dugmeler.length;
+    var k = dugmeler[sira].querySelector('img');
+    img.src = k.getAttribute('src');
+    img.alt = k.alt;
+    ad.textContent = k.alt;
+  }
+  function ac(i) {
+    sonOdak = document.activeElement;
+    goster(i);
+    kutu.hidden = false;
+    document.body.classList.add('kilitli');
+    kutu.querySelector('.buyuk-kapat').focus();
+  }
+  function kapat() {
+    kutu.hidden = true;
+    document.body.classList.remove('kilitli');
+    if (sonOdak) sonOdak.focus();
+  }
+
+  dugmeler.forEach(function (b, i) { b.addEventListener('click', function () { ac(i); }); });
+  kutu.querySelector('.buyuk-kapat').addEventListener('click', kapat);
+  kutu.querySelector('.buyuk-ok.sol').addEventListener('click', function (e) { e.stopPropagation(); goster(sira - 1); });
+  kutu.querySelector('.buyuk-ok.sag').addEventListener('click', function (e) { e.stopPropagation(); goster(sira + 1); });
+  kutu.addEventListener('click', function (e) { if (e.target === kutu) kapat(); });
+  document.addEventListener('keydown', function (e) {
+    if (kutu.hidden) return;
+    if (e.key === 'Escape') kapat();
+    else if (e.key === 'ArrowLeft') goster(sira - 1);
+    else if (e.key === 'ArrowRight') goster(sira + 1);
+  });
+
+  // Telefonda kaydırarak geçiş
+  var x0 = null;
+  kutu.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  kutu.addEventListener('touchend', function (e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) goster(sira + (dx < 0 ? 1 : -1));
+    x0 = null;
+  });
+})();
