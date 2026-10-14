@@ -301,3 +301,18 @@ body.kilitli { overflow: hidden; }
 /* Alt bilgi bağlantıları dar ekranda düzgün sarsın */
 footer .kap > span:last-child { display: flex; flex-wrap: wrap; gap: 8px 18px; }
 footer .kap > span:last-child a { margin-left: 0; }
+
+/* ── Açılıştaki bölüm kısayolları ─────────────────────── */
+.sayilar { align-items: center; }
+.kisayollar { display: flex; flex-wrap: wrap; gap: 10px; }
+.kisayollar a {
+  display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+  font-size: 14px; font-weight: 700; color: #E9F2EE;
+  border: 1px solid rgba(254, 214, 91, 0.35); background: rgba(254, 214, 91, 0.06);
+  padding: 8px 14px; border-radius: 999px; transition: background .15s ease, color .15s ease;
+}
+.kisayollar a:hover { background: rgba(254, 214, 91, 0.16); color: var(--altin); }
+.kisayollar svg { width: 16px; height: 16px; flex: none; color: var(--altin); }
+@media (max-width: 900px) { .sayilar { flex-direction: column; gap: 16px; } .kisayollar { justify-content: center; } }
+/* Yapışkan üst menünün altında kalmasın */
+section[id], #sosyal { scroll-margin-top: 80px; }
