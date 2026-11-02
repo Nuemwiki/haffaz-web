@@ -253,16 +253,21 @@
     var canli = false;
     yolKur();
     // Yazı tipi, görseller ya da günün ayeti yüklenip sayfa uzadıkça iz yeniden kurulur
-    var bekleyen = 0;
+    // Telefonda adres çubuğu açılıp kapandıkça 'resize' gelir ama liste değişmez; o zaman
+    // hiçbir şey yeniden hesaplanmaz (kaydırma sırasında takılmanın sebebi buydu).
+    var bekleyen = 0, sonEn = sar.offsetWidth, sonBoy = sar.offsetHeight;
     function yenile() {
       cancelAnimationFrame(bekleyen);
       bekleyen = requestAnimationFrame(function () {
+        var en = sar.offsetWidth, boy = sar.offsetHeight;
+        if (en === sonEn && boy === sonBoy) return;
+        sonEn = en; sonBoy = boy;
         yolKur();
         if (canli) window.ScrollTrigger.refresh();
       });
     }
     if ('ResizeObserver' in window) new ResizeObserver(yenile).observe(sar);
-    window.addEventListener('resize', yenile);
+    else window.addEventListener('resize', yenile);
     window.addEventListener('load', yenile);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(yenile);
     if (azHareket || !gsap || !window.ScrollTrigger) return;

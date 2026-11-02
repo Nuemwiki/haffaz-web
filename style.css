@@ -291,7 +291,7 @@ p { text-wrap: pretty; }
 .wg-kilit-saat { font-size: 54px; font-weight: 500; line-height: 1; letter-spacing: -0.03em; color: rgba(255,255,255,.92); font-variant-numeric: tabular-nums; }
 .wg-kilit-kutu {
   width: 100%; padding: 10px 14px; border-radius: 16px; display: grid; gap: 1px;
-  background: rgba(255,255,255,.12); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  background: rgba(255,255,255,.12);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
 }
 .wg-kilit-kutu .wg-yer { color: rgba(255,255,255,.85); font-weight: 500; }
