@@ -255,6 +255,21 @@
     // Yazı tipi, görseller ya da günün ayeti yüklenip sayfa uzadıkça iz yeniden kurulur
     // Telefonda adres çubuğu açılıp kapandıkça 'resize' gelir ama liste değişmez; o zaman
     // hiçbir şey yeniden hesaplanmaz (kaydırma sırasında takılmanın sebebi buydu).
+    // ScrollTrigger.refresh() parmak kaydırırken çalışırsa (özellikle iPhone) sayfayı eski
+    // konuma geri atar. Bu yüzden yenileme, kullanıcı kaydırmayı bırakana kadar bekletilir.
+    var dokunuyor = false, sonKaydirma = 0, refreshZaman = 0;
+    window.addEventListener('touchstart', function () { dokunuyor = true; }, { passive: true });
+    window.addEventListener('touchend', function () { dokunuyor = false; sonKaydirma = performance.now(); }, { passive: true });
+    window.addEventListener('touchcancel', function () { dokunuyor = false; }, { passive: true });
+    window.addEventListener('scroll', function () { sonKaydirma = performance.now(); }, { passive: true });
+    function sakinkenYenile() {
+      if (!canli) return;
+      clearTimeout(refreshZaman);
+      (function dene() {
+        if (dokunuyor || performance.now() - sonKaydirma < 300) { refreshZaman = setTimeout(dene, 200); return; }
+        window.ScrollTrigger.refresh();
+      })();
+    }
     var bekleyen = 0, sonEn = sar.offsetWidth, sonBoy = sar.offsetHeight;
     function yenile() {
       cancelAnimationFrame(bekleyen);
@@ -263,16 +278,26 @@
         if (en === sonEn && boy === sonBoy) return;
         sonEn = en; sonBoy = boy;
         yolKur();
-        if (canli) window.ScrollTrigger.refresh();
+        sakinkenYenile();
       });
     }
     if ('ResizeObserver' in window) new ResizeObserver(yenile).observe(sar);
     else window.addEventListener('resize', yenile);
-    window.addEventListener('load', yenile);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(yenile);
+    // Yazı tipleri/görseller bitince listenin sayfadaki yeri değişmiş olabilir: tetikleyiciler
+    // de güncellenmeli (ama yine kaydırma bitince)
+    window.addEventListener('load', function () { yenile(); sakinkenYenile(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { yenile(); sakinkenYenile(); });
     if (azHareket || !gsap || !window.ScrollTrigger) return;
     canli = true;
     gsap.registerPlugin(window.ScrollTrigger);
+    // Kendi kendine 'load' ve 'resize' anında yenilenmesin; yukarıdaki güvenli yol kullanılır
+    window.ScrollTrigger.config({ autoRefreshEvents: 'visibilitychange,DOMContentLoaded', ignoreMobileResize: true });
+    // Yalnız genişlik değişince (telefon yan çevrilince); adres çubuğu yüksekliği önemsiz
+    var sonGenislik = window.innerWidth;
+    window.addEventListener('resize', function () {
+      if (window.innerWidth === sonGenislik) return;
+      sonGenislik = window.innerWidth; sakinkenYenile();
+    });
 
     // pathLength=1: iz uzayıp kısalsa da çizim oranı (0→1) değişmez
     cizgi.setAttribute('pathLength', '1');
