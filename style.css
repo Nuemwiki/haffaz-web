@@ -343,6 +343,9 @@ p { text-wrap: pretty; }
 .iz { position: absolute; left: clamp(12px, 2vw, 30px); top: 0; bottom: 0; width: 24px; overflow: visible; }
 .iz path { fill: none; stroke: var(--altin); stroke-width: 1.5; }
 .iz .iz-golge { stroke: var(--altin-hat-ince); }
+/* Dolan altın iz: kutu ile içindeki çizim zıt yönde kayar (deneyim.js) */
+.iz-dolu { position: absolute; left: clamp(12px, 2vw, 30px); top: 0; width: 24px; overflow: hidden; will-change: transform; }
+.iz-dolu .iz { left: 0; bottom: auto; will-change: transform; }
 
 .adim {
   position: relative;

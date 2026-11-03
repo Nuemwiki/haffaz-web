@@ -217,7 +217,8 @@
     var sar = document.querySelector('.akis-sar');
     var iz = document.getElementById('iz');
     if (!sar || !iz) return;
-    var cizgi = iz.querySelector('.iz-cizgi'), golge = iz.querySelector('.iz-golge');
+    var dolu = document.getElementById('iz-dolu'), izIc = dolu.querySelector('svg');
+    var cizgi = dolu.querySelector('.iz-cizgi'), golge = iz.querySelector('.iz-golge');
     var adimlar = Array.prototype.slice.call(sar.querySelectorAll('.adim'));
 
     // Düğümlerden geçen, aralarda küçük devre kırılımları yapan iz
@@ -230,8 +231,11 @@
     function yolKur() {
       var yukseklik = sar.offsetHeight;
       var ust = 0, x = 12, d = '';
-      iz.setAttribute('viewBox', '0 0 24 ' + Math.round(yukseklik));
-      iz.style.height = yukseklik + 'px';
+      [iz, izIc].forEach(function (s) {
+        s.setAttribute('viewBox', '0 0 24 ' + Math.round(yukseklik));
+        s.style.height = yukseklik + 'px';
+      });
+      dolu.style.height = yukseklik + 'px';
       adimlar.forEach(function (a, i) {
         // Düğüm, başlığın ilk satırının ortasına hizalanır
         var h3 = a.querySelector('h3');
@@ -248,8 +252,23 @@
       });
       d += ' L' + x + ' ' + (ust + 60);
       cizgi.setAttribute('d', d); golge.setAttribute('d', d);
-      return cizgi.getTotalLength();
+      doldur();
     }
+
+    // İzin ucu ekranın %70 hizasında durur; kaydırmaya doğrudan bağlı, gecikmesiz.
+    // Yalnız transform değişir; kaydırırken hiçbir şey yeniden boyanmaz.
+    var cizimBekliyor = false;
+    function doldur() {
+      cizimBekliyor = false;
+      // Dış kutu yukarı kayar, içteki çizim aynı kadar aşağı: görünen kısım 0..dolan
+      var h = sar.offsetHeight;
+      var dolan = azHareket ? h : Math.max(0, Math.min(h, window.innerHeight * 0.7 - sar.getBoundingClientRect().top));
+      dolu.style.transform = 'translate3d(0,' + (dolan - h) + 'px,0)';
+      izIc.style.transform = 'translate3d(0,' + (h - dolan) + 'px,0)';
+    }
+    window.addEventListener('scroll', function () {
+      if (!cizimBekliyor) { cizimBekliyor = true; requestAnimationFrame(doldur); }
+    }, { passive: true });
     var canli = false;
     yolKur();
     // Yazı tipi, görseller ya da günün ayeti yüklenip sayfa uzadıkça iz yeniden kurulur
@@ -297,14 +316,6 @@
     window.addEventListener('resize', function () {
       if (window.innerWidth === sonGenislik) return;
       sonGenislik = window.innerWidth; sakinkenYenile();
-    });
-
-    // pathLength=1: iz uzayıp kısalsa da çizim oranı (0→1) değişmez
-    cizgi.setAttribute('pathLength', '1');
-    cizgi.style.strokeDasharray = '1 1';
-    gsap.fromTo(cizgi, { strokeDashoffset: 1 }, {
-      strokeDashoffset: 0, ease: 'none',
-      scrollTrigger: { trigger: sar, start: 'top 70%', end: 'bottom 60%', scrub: 0.6 }
     });
 
     // Her adım: metin ve görsel, ayrı ritimle
