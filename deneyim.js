@@ -168,15 +168,18 @@
     });
     var kelimeEl = Array.prototype.slice.call(ayet.querySelectorAll('span'));
 
+    var EN = document.documentElement.lang === 'en';
+    var Y = EN ? { bulundu: 'Found', dinle: 'Listening…', analiz: 'Analyzing…' } : { bulundu: 'Bulundu', dinle: 'Dinleniyor…', analiz: 'Analiz ediliyor…' };
+
     function sonHal() {
-      kutu.dataset.asama = 'sonuc'; yazi.textContent = 'Bulundu';
+      kutu.dataset.asama = 'sonuc'; yazi.textContent = Y.bulundu;
       dalga.style.visibility = 'hidden';
       [sonuc, plaka, musabih].forEach(function (e) { e.style.visibility = 'visible'; });
     }
     if (azHareket || !gsap) { sonHal(); return; }
 
     function dinle() {
-      kutu.dataset.asama = 'dinle'; yazi.textContent = 'Dinleniyor…';
+      kutu.dataset.asama = 'dinle'; yazi.textContent = Y.dinle;
       return gsap.to(cubuklar, {
         scaleY: function () { return 0.18 + Math.random() * 0.82; },
         duration: 0.28, ease: 'sine.inOut', stagger: { each: 0.012, from: 'center' },
@@ -187,17 +190,17 @@
     var tl = gsap.timeline({ repeat: -1, repeatDelay: 0.4, paused: true });
     tl.call(function () {
       // Her turun başında durum yazısı da sıfırlanır
-      kutu.dataset.asama = 'dinle'; yazi.textContent = 'Dinleniyor…';
+      kutu.dataset.asama = 'dinle'; yazi.textContent = Y.dinle;
       gsap.set([sonuc, plaka, musabih], { autoAlpha: 0 });
       gsap.set(dalga, { autoAlpha: 1 });
       gsap.set(kelimeEl, { autoAlpha: 0, y: 14, filter: 'blur(6px)' });
       gsap.set(cubuklar, { scaleY: 0.12 });
     })
       .add(dinle())
-      .call(function () { kutu.dataset.asama = 'analiz'; yazi.textContent = 'Analiz ediliyor…'; })
+      .call(function () { kutu.dataset.asama = 'analiz'; yazi.textContent = Y.analiz; })
       .to(cubuklar, { scaleY: 0.05, duration: 0.5, ease: 'expo.out', stagger: { each: 0.008, from: 'edges' } })
       .to(dalga, { autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, '+=0.2')
-      .call(function () { kutu.dataset.asama = 'sonuc'; yazi.textContent = 'Bulundu'; })
+      .call(function () { kutu.dataset.asama = 'sonuc'; yazi.textContent = Y.bulundu; })
       .set(sonuc, { autoAlpha: 1 })
       // Arapça sağdan sola okunur: ilk kelime ilk belirir
       .to(kelimeEl, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.6, ease: 'expo.out', stagger: 0.16 })

@@ -3,9 +3,19 @@
 
 (function () {
   var API = 'https://api.haffaz.net/gunun-ayeti';
+  // İngilizce sayfa (/en/): meal ve sure adı sitedeki ayet_en.json'dan (Saheeh International)
+  var EN = document.documentElement.lang === 'en';
+  var enVeri = null;
+  var enHazir = EN ? fetch('../ayet_en.json').then(function (r) { return r.json(); }).then(function (v) { enVeri = v; }).catch(function () {}) : Promise.resolve();
 
   // Sunucu uykudaysa (ilk istek yavaş olabilir) gösterilecek yedek ayetler
-  var YEDEK = [
+  var YEDEK = EN ? [
+    { text: 'For indeed, with hardship [will be] ease.', ref: 'Surah Ash-Sharh, Verse 5', arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا' },
+    { text: 'Unquestionably, by the remembrance of Allah hearts are assured.', ref: "Surah Ar-Ra'd, Verse 28", arabic: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ' },
+    { text: 'Indeed, Allah is with the patient.', ref: 'Surah Al-Baqarah, Verse 153', arabic: 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ' },
+    { text: 'And whoever relies upon Allah - then He is sufficient for him.', ref: 'Surah At-Talaq, Verse 3', arabic: 'وَمَنْ يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ' },
+    { text: 'My Lord, increase me in knowledge.', ref: 'Surah Taha, Verse 114', arabic: 'رَبِّ زِدْنِي عِلْمًا' }
+  ] : [
     { text: 'Şüphesiz zorlukla birlikte kolaylık vardır.', ref: 'İnşirah Suresi, 5. Ayet', arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا' },
     { text: "Kalpler ancak Allah'ı anmakla huzur bulur.", ref: "Ra'd Suresi, 28. Ayet", arabic: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ' },
     { text: 'Şüphesiz Allah sabredenlerle beraberdir.', ref: 'Bakara Suresi, 153. Ayet', arabic: 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ' },
@@ -20,7 +30,7 @@
   try { document.getElementById('yil').textContent = String(new Date().getFullYear()); } catch (e) {}
 
   var bugun = new Date();
-  tarihEl.textContent = bugun.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+  tarihEl.textContent = bugun.toLocaleDateString(EN ? 'en-GB' : 'tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
 
   // Sure başı ayetlerde metnin başındaki besmeleyi gösterme (Fâtiha 1. ayet besmelenin kendisidir)
   function besmelesiz(metin) {
@@ -68,9 +78,16 @@
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (d) {
       if (!d || !d.text) throw new Error('bos');
-      bitti = true;
-      clearTimeout(zamanlayici);
-      yaz({ text: d.text, ref: d.ref, arabic: d.arabic });
+      return enHazir.then(function () {
+        if (EN) {
+          var k = d.sure_no + ':' + d.ayet_no;
+          if (!enVeri || !enVeri.ayet[k]) throw new Error('en yok');
+          d = { text: enVeri.ayet[k], ref: 'Surah ' + enVeri.sure[d.sure_no - 1] + ', Verse ' + d.ayet_no, arabic: d.arabic };
+        }
+        bitti = true;
+        clearTimeout(zamanlayici);
+        yaz({ text: d.text, ref: d.ref, arabic: d.arabic });
+      });
     })
     .catch(function () {
       bitti = true;
@@ -95,7 +112,7 @@
     var m = metinOlustur();
     if (!m) return;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(m).then(function () { bildir(btn, 'Kopyalandı ✓'); }, function () { bildir(btn, 'Kopyalanamadı'); });
+      navigator.clipboard.writeText(m).then(function () { bildir(btn, EN ? 'Copied ✓' : 'Kopyalandı ✓'); }, function () { bildir(btn, EN ? 'Could not copy' : 'Kopyalanamadı'); });
     }
   });
 
@@ -104,9 +121,9 @@
     var m = metinOlustur();
     if (!m) return;
     if (navigator.share) {
-      navigator.share({ title: 'Günün Ayeti — Haffaz AI', text: m, url: 'https://haffaz.net/#gunun-ayeti' }).catch(function () {});
+      navigator.share({ title: EN ? 'Verse of the Day — Haffaz AI' : 'Günün Ayeti — Haffaz AI', text: m, url: EN ? 'https://haffaz.net/en/#gunun-ayeti' : 'https://haffaz.net/#gunun-ayeti' }).catch(function () {});
     } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(m).then(function () { bildir(btn, 'Kopyalandı ✓'); });
+      navigator.clipboard.writeText(m).then(function () { bildir(btn, EN ? 'Copied ✓' : 'Kopyalandı ✓'); });
     }
   });
 })();

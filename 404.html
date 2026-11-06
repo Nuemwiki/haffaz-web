@@ -73,5 +73,28 @@
   </div>
 </footer>
 <script>document.getElementById('yil').textContent = new Date().getFullYear();</script>
+<script>
+// /en/ altındaki kayıp adreslerde sayfa İngilizce gösterilir (GitHub Pages tek 404 sayfası kullanır)
+(function () {
+  if (!/^\/en(\/|$)/.test(location.pathname)) return;
+  document.documentElement.lang = 'en';
+  document.title = 'Page Not Found — Haffaz AI';
+  var m = {
+    '/#ozellikler': ['/en/#ozellikler', 'Features'], '/#gunun-ayeti': ['/en/#gunun-ayeti', 'Verse of the Day'],
+    '/#iletisim': ['/en/#iletisim', 'Social Media & Contact'], '/#indir': ['/en/#indir', 'Download Free'],
+    '/': ['/en/', null], '/gizlilik.html': ['/en/privacy.html', 'Privacy Policy'], '/kosullar.html': ['/en/terms.html', 'Terms of Use']
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('a[href^="/"]'), function (a) {
+    var k = m[a.getAttribute('href')]; if (!k) return;
+    a.setAttribute('href', k[0]);
+    if (k[1] && !a.querySelector('img')) a.textContent = k[1];
+  });
+  var h = document.querySelector('h1'); if (h) h.textContent = "We can find any verse in seconds, but we couldn't find this page.";
+  var p = h && h.nextElementSibling; if (p) p.textContent = 'The link may be outdated or the address mistyped.';
+  var ana = document.querySelector('.kayip-ana'); if (ana) ana.textContent = 'Return to home page';
+  var oz = ana && ana.nextElementSibling; if (oz) oz.textContent = 'Explore features';
+  var yaz = document.querySelector('a.kayip-ana ~ a[href^="mailto"]'); if (yaz) yaz.textContent = 'Contact us';
+})();
+</script>
 </body>
 </html>
