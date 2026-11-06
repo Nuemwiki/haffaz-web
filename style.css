@@ -82,6 +82,15 @@ p { text-wrap: pretty; }
 }
 .menu .dugme-kucuk:hover { color: var(--z-950); background: var(--altin-acik); }
 .menu .dugme-kucuk:active { transform: scale(0.97); }
+/* Dil düğmesi (EN / TR): masaüstünde menünün sağında, telefonda üst satırın sağ köşesinde */
+.dil {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 40px; height: 32px; padding: 0 10px; border-radius: 999px;
+  border: 1px solid var(--altin-hat-ince); color: var(--altin-acik);
+  font-size: 13px; font-weight: 500; letter-spacing: .06em; text-decoration: none;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+.dil:hover { border-color: var(--altin); background: rgba(216, 179, 91, 0.1); }
 /* Mobilde menü, logonun altında yana kaydırılabilen ikinci bir sıra olur */
 @media (max-width: 820px) {
   html { scroll-padding-top: 116px; }
@@ -95,8 +104,10 @@ p { text-wrap: pretty; }
   .menu::-webkit-scrollbar { display: none; }
   .menu a { flex: none; font-size: 14px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--altin-hat-ince); }
   .menu .dugme-kucuk { order: -1; padding: 6px 14px; border-color: transparent; }
+  .ust .dil { order: 1; margin-left: auto; }
+  .ust .menu { order: 2; }
 }
-@media (min-width: 821px) { html { scroll-padding-top: 84px; } }
+@media (min-width: 821px) { html { scroll-padding-top: 84px; } .ust .menu { margin-left: auto; } }
 
 /* ── Tezhip çerçevesi (devre köşeli) ───────────────────── */
 .tezhip { position: relative; }
